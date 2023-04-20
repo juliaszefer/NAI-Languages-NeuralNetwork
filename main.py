@@ -70,17 +70,17 @@ def sortline(line, fpath, numberr, testortrain):
             y += 1
         elif letter == 'z':
             z += 1
-    suma = a+b+c+d+e+f+g+h+i+j+k+ll+m+n+o+p+q+r+s+t+u+v+w+x+y+z
-    a, b, c, d, e, f, g, h, i, j, k, ll, m, n, o, p, q, r, s, t, u, v, w, x, y, z = a/suma, b/suma, c/suma, d/suma,\
-        e/suma, f/suma, g/suma, h/suma, i/suma, g/suma, k/suma, ll/suma, m/suma, n/suma, o/suma, p/suma, q/suma,\
-        r/suma, s/suma, t/suma, u/suma, v/suma, w/suma, x/suma, y/suma, z/suma
+    suma = a + b + c + d + e + f + g + h + i + j + k + ll + m + n + o + p + q + r + s + t + u + v + w + x + y + z
+    a, b, c, d, e, f, g, h, i, j, k, ll, m, n, o, p, q, r, s, t, u, v, w, x, y, z = a / suma, b / suma, c / suma, d / suma, \
+                                                                                    e / suma, f / suma, g / suma, h / suma, i / suma, g / suma, k / suma, ll / suma, m / suma, n / suma, o / suma, p / suma, q / suma, \
+                                                                                    r / suma, s / suma, t / suma, u / suma, v / suma, w / suma, x / suma, y / suma, z / suma
     vector = list()
     vector.extend((a, b, c, d, e, f, g, h, i, j, k, ll, m, n, o, p, q, r, s, t, u, v, w, x, y, z))
     if testortrain == 'train':
         fpath = fpath.replace("Data/", "")
         fpath = fpath.replace(f".txt", "")
         fpath = fpath.replace("/", "")
-        fpath = fpath.replace(str(numberr+1), "")
+        fpath = fpath.replace(str(numberr + 1), "")
         text1 = Text(vector, fpath)
     else:
         text1 = Text(vector, "default")
@@ -98,7 +98,7 @@ def readfile(fpath, numberr, testortrain):
 
 
 def howaccurate(correctno, allno):
-    return correctno/allno*100
+    return correctno / allno * 100
 
 
 def decision(isgood, language):
@@ -108,41 +108,38 @@ def decision(isgood, language):
         return "other"
 
 
-def train(perceptronlista, v_trainlist, desiredvalues):
-    czydalejj = True
-    while czydalejj:
-        checklist = list()
-        for nr in range(len(v_trainlist)):
-            for numr in range(len(v_trainlist[nr])):
-                for pernr in range(len(perceptronlista)):
-                    czynauczon = perceptronlista[pernr].czynauczony(v_trainlist[nr][numr].vector)
-                    # print(czynauczon)
-                    print(f"desired: {desiredvalues[nr][pernr]} == {czynauczon}")
-
-                    if desiredvalues[nr][pernr] == int(czynauczon):
-                        perceptronlista[pernr].setczyucz(False)
-                        print(v_trainlist[nr][numr].language)
-                    else:
-                        print("musial sie nauczyc")
-                        perceptronlista[pernr].setczyucz(True)
-                print(' ')
+def train(perceptronlista, v_trainlist, desiredvalues, languagess):
+    czydalej = True
+    while czydalej:
+        for numberr in range(len(v_trainlist[0])):
+            lista = list()
+            for nr in range(len(v_trainlist)):
+                lista.append(v_trainlist[nr][number])
+            for listnr in range(len(lista)):
+                des = 0
+                good = 0
                 for percnr in range(len(perceptronlista)):
-                    if perceptronlista[percnr].czyucz:
-                        perceptronlista[percnr].naucz(desiredvalues[nr][percnr], not desiredvalues[nr][percnr],
-                                                      v_trainlist[nr][numr].vector)
-            print('petla sie skonczyla')
-            ctrn = 0
-            for pe in perceptronlista:
-                if not pe.czyucz:
-                    ctrn += 1
-            if ctrn == 3:
-                checklist.append(False)
-        counter = 0
-        for val in checklist:
-            if not val:
-                counter += 1
-        if counter == 3:
-            czydalejj = False
+                    czynauczon = perceptronlista[percnr].czynauczony(lista[listnr].vector)
+                    calc = len(languagess) - 1
+                    while calc >= 0:
+                        if lista[listnr].language == languagess[calc]:
+                            des = calc
+                            calc = 0
+                        calc -= 1
+                    if int(czynauczon) == desiredvalues[des][percnr]:
+                        perceptronlista[percnr].setczyucz(False)
+                    else:
+                        perceptronlista[percnr].setczyucz(True)
+                for pernr in range(len(perceptronlista)):
+                    if perceptronlista[pernr].czyucz:
+                        perceptronlista[pernr].naucz(desiredvalues[des][pernr],
+                                                     not desiredvalues[des][pernr], lista[listnr].vector)
+                    else:
+                        good += 1
+                print(f"{howaccurate(good, len(perceptronlista))}%")
+        odp = input("czy chcesz powtorzyc proces? (y/n)")
+        if odp == 'n':
+            czydalej = False
 
 
 def decicisionwhichperc(perclistt, najblizej):
@@ -160,6 +157,7 @@ def test(perclistt, testlistt, accurlist):
             wynikk = perclistt[j].czyaktywowany(testlistt[i].vector)
             perclistt[j].setwynik(wynikk)
             wyniklist.append(wynikk)
+        print(wyniklist)
         najblizej = max(wyniklist)
         activeperc = decicisionwhichperc(perclistt, najblizej)
         if activeperc.language == accurlist[i]:
@@ -176,14 +174,13 @@ for lan in languages:
     length = os.listdir(ppath)
     count = len(length)
     for number in range(count):
-        ppath = f"{dirpath}/{lan}/{number+1}.txt"
+        ppath = f"{dirpath}/{lan}/{number + 1}.txt"
         tmpset += readfile(ppath, number, 'train')
     trainset.append(tmpset)
 
-
 perclist = list()
 for lan in languages:
-    perceptron = Perceptron(26, 0.5, 1, 2, lan)
+    perceptron = Perceptron(26, 1, 1, 1, lan)
     perclist.append(perceptron)
 
 desired = list()
@@ -196,7 +193,7 @@ for j in range(len(languages)):
             tmp.append(0)
     desired.append(tmp)
 
-train(perclist, trainset, desired)
+train(perclist, trainset, desired, languages)
 
 testpath = "Test"
 testlist = list()
