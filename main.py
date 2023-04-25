@@ -89,7 +89,7 @@ def sortline(line, fpath, numberr, testortrain):
 
 def readfile(fpath, numberr, testortrain):
     arr = list()
-    ffile = open(fpath, 'r')
+    ffile = open(fpath, 'r', encoding="utf8")
     oneline = ""
     for line in ffile:
         oneline += line
@@ -111,14 +111,16 @@ def decision(isgood, language):
 def train(perceptronlista, v_trainlist, desiredvalues, languagess):
     czydalej = True
     while czydalej:
-        for numberr in range(len(v_trainlist[0])):
-            lista = list()
-            for nr in range(len(v_trainlist)):
-                lista.append(v_trainlist[nr][number])
-            for listnr in range(len(lista)):
+        listaacur = list()
+        for numberr in range(len(v_trainlist[0])): # 10
+            lista = list() # lista po jednym wektorze z kazdego jezyka
+            for nr in range(len(v_trainlist)): # przejscie po liscie typow wektorow treningowych
+                lista.append(v_trainlist[nr][numberr]) # dodanie do listy trainlist[1][1], trainlist[2][1] itp
+            for listnr in range(len(lista)): # przejscie po liscie tylu wektorow ile jest jezykow, kazdy dla konkretnego jezyka
                 des = 0
                 good = 0
-                for percnr in range(len(perceptronlista)):
+                for percnr in range(len(perceptronlista)): # przejscie po liscie perceptronow
+                    # print(perceptronlista[percnr].language)
                     czynauczon = perceptronlista[percnr].czynauczony(lista[listnr].vector)
                     calc = len(languagess) - 1
                     while calc >= 0:
@@ -126,6 +128,7 @@ def train(perceptronlista, v_trainlist, desiredvalues, languagess):
                             des = calc
                             calc = 0
                         calc -= 1
+                    # print(f"{int(czynauczon)} == {desiredvalues[des][percnr]}")
                     if int(czynauczon) == desiredvalues[des][percnr]:
                         perceptronlista[percnr].setczyucz(False)
                     else:
@@ -136,7 +139,8 @@ def train(perceptronlista, v_trainlist, desiredvalues, languagess):
                                                      not desiredvalues[des][pernr], lista[listnr].vector)
                     else:
                         good += 1
-                print(f"{howaccurate(good, len(perceptronlista))}%")
+                listaacur.append(howaccurate(good, len(perceptronlista)))
+        print(f"Ogólna poprawnosc: {sum(listaacur)/len(listaacur)}%")
         odp = input("czy chcesz powtorzyc proces? (y/n)")
         if odp == 'n':
             czydalej = False
@@ -157,7 +161,7 @@ def test(perclistt, testlistt, accurlist):
             wynikk = perclistt[j].czyaktywowany(testlistt[i].vector)
             perclistt[j].setwynik(wynikk)
             wyniklist.append(wynikk)
-        print(wyniklist)
+        # print(wyniklist)
         najblizej = max(wyniklist)
         activeperc = decicisionwhichperc(perclistt, najblizej)
         if activeperc.language == accurlist[i]:
@@ -210,3 +214,24 @@ for line in fille:
     accuracylist.append(line.replace("\n", ""))
 
 test(perclist, testlist, accuracylist)
+czyDalej = True
+odpp = input("Would you like to test your own text? (y/n)")
+if odpp == 'y':
+    while (czyDalej):
+        print("\nLanguages which can be used:")
+        for lang in range(len(languages)):
+            print(f"{lang+1}. {languages[lang]}")
+        texttotest = input("\nEnter your text:\n")
+        wyniklista = list()
+        for j in range(len(perclist)):
+            wynikk = perclist[j].czyaktywowany(sortline(texttotest, "", 0, 'test').vector)
+            perclist[j].setwynik(wynikk)
+            wyniklista.append(wynikk)
+        najblizej = max(wyniklista)
+        activeperc = decicisionwhichperc(perclist, najblizej)
+        print(f'Detected language: {activeperc.language}\n')
+        odppp = input("Would you like to try again? (y/n)")
+        if odppp == 'n':
+            czyDalej = False
+else:
+    print("\nThank you for using the program!")
