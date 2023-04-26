@@ -136,9 +136,14 @@ def train(perceptronlista, v_trainlist, desiredvalues, languagess):
                 for pernr in range(len(perceptronlista)):
                     if perceptronlista[pernr].czyucz:
                         perceptronlista[pernr].naucz(desiredvalues[des][pernr],
-                                                     not desiredvalues[des][pernr], lista[listnr].vector)
+                                                      not desiredvalues[des][pernr], lista[listnr].vector)
                     else:
                         good += 1
+                #     if (not czynauczon and perceptronlista[percnr].language == lista[listnr].language) \
+                #             or (czynauczon and perceptronlista[percnr].language != lista[listnr].language):
+                #         perceptronlista[percnr].naucz(not czynauczon, czynauczon, lista[listnr].vector)
+                #     if perceptronlista[percnr].language == lista[listnr].language:
+                #         good += 1
                 listaacur.append(howaccurate(good, len(perceptronlista)))
         print(f"Ogólna poprawnosc: {sum(listaacur)/len(listaacur)}%")
         odp = input("czy chcesz powtorzyc proces? (y/n)")
@@ -161,7 +166,7 @@ def test(perclistt, testlistt, accurlist):
             wynikk = perclistt[j].czyaktywowany(testlistt[i].vector)
             perclistt[j].setwynik(wynikk)
             wyniklist.append(wynikk)
-        # print(wyniklist)
+        print(wyniklist)
         najblizej = max(wyniklist)
         activeperc = decicisionwhichperc(perclistt, najblizej)
         if activeperc.language == accurlist[i]:
@@ -184,7 +189,7 @@ for lan in languages:
 
 perclist = list()
 for lan in languages:
-    perceptron = Perceptron(26, 1, 1, 1, lan)
+    perceptron = Perceptron(26, 1, 0.2, 0.2345677, lan)
     perclist.append(perceptron)
 
 desired = list()
